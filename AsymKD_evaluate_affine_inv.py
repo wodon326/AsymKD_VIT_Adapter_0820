@@ -180,7 +180,7 @@ if "__main__" == __name__:
             ImageEncoderViT = child
             break
         model = AsymKD_DepthAnything_Infer(ImageEncoderViT=ImageEncoderViT).to(device)
-        restore_ckpt = "checkpoints_new_loss_0001_smooth/74000_AsymKD_new_loss.pth"
+        restore_ckpt = "checkpoints_new_loss_001_smooth/65000_AsymKD_new_loss.pth"
 
         if restore_ckpt is not None:
             logging.info("Loading checkpoint...")
@@ -215,6 +215,7 @@ if "__main__" == __name__:
         # GT data
         depth_raw_ts = data["depth_raw_linear"].squeeze()
         valid_mask_ts = data["valid_mask_raw"].squeeze()
+        rgb_float = data["rgb_float"].to(device)
         rgb = data["rgb_norm"].to(device)
 
         depth_raw = depth_raw_ts.numpy()
@@ -235,11 +236,14 @@ if "__main__" == __name__:
             pred_size = (518, 770)
 
         rgb_resized = F.interpolate(rgb, size=pred_size, mode='bilinear', align_corners=False)
+        rgb_float_resized = F.interpolate(rgb_float, size=pred_size, mode='bilinear', align_corners=False)
         if "depth_anything" in model_type:
             pred = infer(model, rgb_resized)
         elif model_type == "bfm":
-            rgb_resized_seg = segment_anything_predictor.set_image(rgb_resized.squeeze())
-            pred = infer(model, rgb_resized, rgb_resized_seg)
+            rgb_resized_seg = segment_anything_predictor.set_image(rgb_float_resized.squeeze())
+            # pred = infer(model, rgb_resized, rgb_resized_seg)
+            with torch.no_grad():
+                pred = model(rgb_resized, rgb_resized_seg)
 
         depth_pred_ts = F.interpolate(pred, size=depth_raw_ts.shape, mode='bilinear', align_corners=False)
         depth_pred = depth_pred_ts.squeeze().detach().cpu().numpy()

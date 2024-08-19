@@ -313,11 +313,7 @@ def train(rank, world_size, args):
                         flow_predictions, flow, mask=valid.bool(), interpolate=True, return_interpolated=True)
                     loss = 0.85 * l_si
                     l_grad = grad_loss(scaled_pred, flow, mask=valid.bool().unsqueeze(1))
-<<<<<<< HEAD
                     loss = loss + 0.0001 * l_grad
-=======
-                    loss = loss + 0.0005 * l_grad
->>>>>>> b8fe5aebc6adf35e301b287933b9fff28503fd4e
                 except Exception as e:
                     loss, _ = sequence_loss(flow_predictions, flow, valid)
 
@@ -350,11 +346,7 @@ def train(rank, world_size, args):
 
                 if(l_si is None):
                     if rank == 0:
-<<<<<<< HEAD
                         save_path = Path('checkpoints_new_loss_0001_smooth/%d_%s.pth' % (total_steps + 1, args.name))
-=======
-                        save_path = Path('checkpoints_new_loss_0005_smooth/%d_%s.pth' % (total_steps + 1, args.name))
->>>>>>> b8fe5aebc6adf35e301b287933b9fff28503fd4e
                         logging.info(f"Saving file {save_path.absolute()}")
                         torch.save(model.state_dict(), save_path)
                     assert l_si is None, f"loss is None {global_batch_num}"
@@ -372,20 +364,12 @@ def train(rank, world_size, args):
 
 
                 # if total_steps % validation_frequency == validation_frequency - 1 and rank == 0:
-<<<<<<< HEAD
                 #     save_path = Path('checkpoints_new_loss_0001_smooth/%d_%s.pth' % (total_steps + 1, args.name))
-=======
-                #     save_path = Path('checkpoints_new_loss_0005_smooth/%d_%s.pth' % (total_steps + 1, args.name))
->>>>>>> b8fe5aebc6adf35e301b287933b9fff28503fd4e
                 #     logging.info(f"Saving file {save_path.absolute()}")
                 #     torch.save(model.state_dict(), save_path)
 
                 if epoch >= 0 and total_steps % save_step == save_step-1 and rank == 0:
-<<<<<<< HEAD
                     save_path = Path('checkpoints_new_loss_0001_smooth/%d_%s.pth' % (total_steps + 1, args.name))
-=======
-                    save_path = Path('checkpoints_new_loss_0005_smooth/%d_%s.pth' % (total_steps + 1, args.name))
->>>>>>> b8fe5aebc6adf35e301b287933b9fff28503fd4e
                     logging.info(f"Saving file {save_path.absolute()}")
                     torch.save(model.state_dict(), save_path)
 
@@ -403,21 +387,13 @@ def train(rank, world_size, args):
                     break
             epoch += 1     
             if len(train_loader) >= 10000:
-<<<<<<< HEAD
                 save_path = Path('checkpoints_new_loss_0001_smooth/%d_epoch_%s.pth' % (total_steps + 1, args.name))
-=======
-                save_path = Path('checkpoints_new_loss_0005_smooth/%d_epoch_%s.pth' % (total_steps + 1, args.name))
->>>>>>> b8fe5aebc6adf35e301b287933b9fff28503fd4e
                 logging.info(f"Saving file {save_path}")
                 torch.save(model.state_dict(), save_path)
 
         print("FINISHED TRAINING")
         logger.close()
-<<<<<<< HEAD
         PATH = 'checkpoints_new_loss_0001_smooth/%s.pth' % args.name
-=======
-        PATH = 'checkpoints_new_loss_0005_smooth/%s.pth' % args.name
->>>>>>> b8fe5aebc6adf35e301b287933b9fff28503fd4e
         torch.save(model.state_dict(), PATH)
 
         return PATH
@@ -467,10 +443,6 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s')
 
-<<<<<<< HEAD
     Path("checkpoints_new_loss_0001_smooth").mkdir(exist_ok=True, parents=True)
-=======
-    Path("checkpoints_new_loss_0005_smooth").mkdir(exist_ok=True, parents=True)
->>>>>>> b8fe5aebc6adf35e301b287933b9fff28503fd4e
     world_size = torch.cuda.device_count()
     mp.spawn(train, args=(world_size,args,), nprocs=world_size, join=True)
