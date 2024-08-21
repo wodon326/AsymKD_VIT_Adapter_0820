@@ -158,7 +158,7 @@ class BaseDepthDataset(Dataset):
 
 
         outputs = {
-            "rgb_int": torch.from_numpy(rgb).int(),
+            "rgb_float": torch.from_numpy(rgb).float(),
             "rgb_norm": torch.from_numpy(rgb_norm).float(),
         }
         return outputs

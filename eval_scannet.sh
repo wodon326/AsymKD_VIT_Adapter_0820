@@ -1,7 +1,7 @@
 set -e
 set -x
 
-CUDA_VISIBLE_DEVICES=5 python AsymKD_evaluate_affine_inv.py \
+CUDA_VISIBLE_DEVICES=6 python AsymKD_evaluate_affine_inv.py \
     --model bfm \
     --base_data_dir ~/data/AsymKD \
     --dataset_config config/data_scannet_val.yaml \
