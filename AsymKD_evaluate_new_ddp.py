@@ -401,11 +401,7 @@ def eval(rank, world_size, queue):
                     print_str += f'diff {key} : {round(Depth_Any_metric[key]-AsymKD_metric[key], 3)}\n'
             
             print(print_str)
-<<<<<<< HEAD
             filename = 'eval_result_new_0001_smooth.txt'
-=======
-            filename = 'eval_result_new_less_smooth.txt'
->>>>>>> b8fe5aebc6adf35e301b287933b9fff28503fd4e
             with open(filename, 'a') as a:
                 # 새파일에 이어서 쓰기
                 a.write(f'{print_str}\n')
@@ -418,17 +414,9 @@ if __name__ == '__main__':
     world_size = torch.cuda.device_count()
     manager = Manager()
     queue = manager.Queue()    
-<<<<<<< HEAD
     start_num = 5
     end_num = 1870
         
     for i in range(end_num,start_num-1,-5):
         queue.put(f'checkpoints_new_loss_0001_smooth/{i}00_AsymKD_new_loss.pth')
-=======
-    start_num = 1
-    end_num = 99
-        
-    for i in range(end_num,start_num-1,-1):
-        queue.put(f'checkpoints_new_loss_less_smooth/{i}000_AsymKD_new_loss.pth')
->>>>>>> b8fe5aebc6adf35e301b287933b9fff28503fd4e
     mp.spawn(eval, args=(world_size,queue,), nprocs=world_size, join=True)

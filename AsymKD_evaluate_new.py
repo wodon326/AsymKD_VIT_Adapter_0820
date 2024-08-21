@@ -797,7 +797,6 @@ if __name__ == '__main__':
     segment_anything = sam_model_registry[model_type](checkpoint=checkpoint).to(DEVICE).eval()
     segment_anything_predictor = SamPredictor(segment_anything)
  
-<<<<<<< HEAD
     '''Depth Anything model load'''
     encoder = 'vits' # can also be 'vitb' or 'vitl'
     model = DepthAnything.from_pretrained('LiheYoung/depth_anything_{}14'.format(encoder)).to(DEVICE).eval()
@@ -806,27 +805,13 @@ if __name__ == '__main__':
     print(f'#######{encoder} Depth Anything evaluate result#############')
     for key in results.keys():
         print(f'{key} : {round(results[key], 3)}')
-=======
-    # '''Depth Anything model load'''
-    # encoder = 'vitl' # can also be 'vitb' or 'vitl'
-    # model = DepthAnything.from_pretrained('LiheYoung/depth_anything_{}14'.format(encoder)).to(DEVICE).eval()
-    # results = validate_raw_kitti_for_depth_anything(model)
-    # print(f'Depth Anything evaluate result : {results}')    
-    # print(f'#######{encoder} Depth Anything evaluate result#############')    
-    # for key in results.keys():
-    #     print(f'{key} : {round(results[key], 3)}')
->>>>>>> b8fe5aebc6adf35e301b287933b9fff28503fd4e
    
     '''AsymKD model load'''
     for child in segment_anything.children():
             ImageEncoderViT = child
             break
     model = AsymKD_DepthAnything_Infer(ImageEncoderViT = ImageEncoderViT).to(DEVICE)
-<<<<<<< HEAD
     restore_ckpt = 'checkpoints_new_loss_0001_smooth/74000_AsymKD_new_loss.pth'
-=======
-    restore_ckpt = 'checkpoints_new_loss_less_smooth/92000_AsymKD_new_loss.pth'
->>>>>>> b8fe5aebc6adf35e301b287933b9fff28503fd4e
     # restore_ckpt = 'checkpoints/74994_epoch_AsymKD.pth'
     if restore_ckpt is not None:
         # assert restore_ckpt.endswith(".pth")
@@ -842,7 +827,6 @@ if __name__ == '__main__':
  
         model__state_dict.update(new_state_dict)
         model.load_state_dict(model__state_dict)
-<<<<<<< HEAD
     # print(new_state_dict)
     model.to(DEVICE)
     model.eval()
@@ -858,20 +842,3 @@ if __name__ == '__main__':
     # for key in AsymKD_metric.keys():
     #     # print(f'{key} : {round(AsymKD_metric[key], 3)}')
     #     print(f'diff {key} : {round(Depth_Any_metric[key]-AsymKD_metric[key], 3)}')
-=======
-    print(new_state_dict)
-    model.to(DEVICE)
-    model.eval()
-    AsymKD_metric = validate_raw_kitti(model,segment_anything_predictor)
-    print(f'AsymKD {restore_ckpt} evaluate result : {AsymKD_metric}')    
-    print(f'#######AsymKD {restore_ckpt} diff evaluate result#############')  
-    for key in AsymKD_metric.keys():
-        print(f'{key} : {round(AsymKD_metric[key], 3)}')
-        # print(f'diff {key} : {round(Depth_Any_metric[key]-AsymKD_metric[key], 3)}')
- 
-    Depth_Any_metric = {'a1': 0.8796647734923237, 'a2': 0.9656859071253321, 'a3': 0.9860573899123259, 'abs_rel': 0.11549764806391348, 'rmse': 4.7324441392589325, 'log_10': 0.049063832267926426, 'rmse_log': 0.1806166836860961, 'silog': 17.612650733573325, 'sq_rel': 0.8737658289350687}
-    print(f'#######AsymKD {restore_ckpt} evaluate result#############')    
-    for key in AsymKD_metric.keys():
-        # print(f'{key} : {round(AsymKD_metric[key], 3)}')
-        print(f'diff {key} : {round(Depth_Any_metric[key]-AsymKD_metric[key], 3)}')
->>>>>>> b8fe5aebc6adf35e301b287933b9fff28503fd4e
