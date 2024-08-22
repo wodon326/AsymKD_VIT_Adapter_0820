@@ -35,7 +35,7 @@ from dataset import (
     get_dataset,
 )
 from dataset.util import metric
-from dataset.util.alignment import (
+from dataset.util.alignment_gpu import (
     align_depth_least_square,
     depth2disparity,
     disparity2depth,
@@ -213,13 +213,13 @@ if "__main__" == __name__:
     model.eval()
     for data in tqdm(dataloader, desc="Evaluating"):
         # GT data
-        depth_raw_ts = data["depth_raw_linear"].squeeze()
-        valid_mask_ts = data["valid_mask_raw"].squeeze()
+        depth_raw_ts = data["depth_raw_linear"].squeeze().to(device)
+        valid_mask_ts = data["valid_mask_raw"].squeeze().to(device)
         rgb_float = data["rgb_float"].to(device)
         rgb = data["rgb_norm"].to(device)
 
-        depth_raw = depth_raw_ts.numpy()
-        valid_mask = valid_mask_ts.numpy()
+        depth_raw = depth_raw_ts
+        valid_mask = valid_mask_ts
 
         depth_raw_ts = depth_raw_ts.to(device)
         valid_mask_ts = valid_mask_ts.to(device)
@@ -246,8 +246,7 @@ if "__main__" == __name__:
             #     pred = model(rgb_resized, rgb_resized_seg)
 
         depth_pred_ts = F.interpolate(pred, size=depth_raw_ts.shape, mode='bilinear', align_corners=False)
-        depth_pred = depth_pred_ts.squeeze().detach().cpu().numpy()
-
+        depth_pred = depth_pred_ts.squeeze()
         # Align with GT using least square
         if "least_square" == alignment:
             depth_pred, scale, shift = align_depth_least_square(
@@ -274,22 +273,22 @@ if "__main__" == __name__:
                 max_resolution=alignment_max_res,
             )
             # convert to depth
-            disparity_pred = np.clip(
-                disparity_pred, a_min=1e-3, a_max=None
+            disparity_pred = torch.clamp(
+                disparity_pred, min=1e-3
             )  # avoid 0 disparity
-            depth_pred = disparity2depth(disparity_pred)
+            depth_pred = disparity2depth(disparity_pred)  # 이 함수는 이미 GPU에서 동작하도록 수정됨
 
         # Clip to dataset min max
-        depth_pred = np.clip(
-            depth_pred, a_min=dataset.min_depth, a_max=dataset.max_depth
+        depth_pred = torch.clamp(
+            depth_pred, min=dataset.min_depth, max=dataset.max_depth
         )
 
         # clip to d > 0 for evaluation
-        depth_pred = np.clip(depth_pred, a_min=1e-6, a_max=None)
+        depth_pred = torch.clamp(depth_pred, min=1e-6)
 
         # Evaluate (using CUDA if available)
         sample_metric = []
-        depth_pred_ts = torch.from_numpy(depth_pred).to(device)
+        depth_pred_ts = depth_pred
 
         for met_func in metric_funcs:
             _metric_name = met_func.__name__
@@ -313,6 +312,6 @@ if "__main__" == __name__:
 
     _save_to = os.path.join(output_dir, metrics_filename)
     print(eval_text)
-    with open(_save_to, "w+") as f:
-        f.write(eval_text)
-        logging.info(f"Evaluation metrics saved to {_save_to}")
+    # with open(_save_to, "w+") as f:
+    #     f.write(eval_text)
+    #     logging.info(f"Evaluation metrics saved to {_save_to}")

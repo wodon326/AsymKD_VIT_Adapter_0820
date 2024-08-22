@@ -10,3 +10,4 @@ last_runs/
 debug*
 eval_result*
 *.npz
+feature_visualize*
