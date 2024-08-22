@@ -169,7 +169,10 @@ class Sam(nn.Module):
 
         # Pad
         h, w = x.shape[-2:]
-        padh = self.image_encoder.img_size - h
-        padw = self.image_encoder.img_size - w
-        x = F.pad(x, (0, padw, 0, padh))
+        
+        x = F.interpolate(x, size=(self.image_encoder.img_size,self.image_encoder.img_size), mode='bilinear', align_corners=False)
+
+        # padh = self.image_encoder.img_size - h
+        # padw = self.image_encoder.img_size - w
+        # x = F.pad(x, (0, padw, 0, padh))
         return x
